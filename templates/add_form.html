@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="content-form">
+
+    <h2>Adicionar Formulário</h2>
+
+    <form id="form" method="POST" action="/forms/add">
+        <div>
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" placeholder="Título do Formulário" required>
+        </div>
+        <div>
+            <label for="description">Descrição:</label>
+            <textarea id="description" name="description" placeholder="Insira aqui a descrição"></textarea>
+        </div>
+
+        <div id="questions-container">
+            <h3>Questões</h3>
+            <div class="question" id="question-template">
+                <div>
+                    <label for="question_text">Enunciado da Questão:</label>
+                    <input type="text" class="question_text" name="question_text[]"
+                        placeholder="Insira aqui o enunciado">
+                </div>
+                <div>
+                    <label for="question_type">Tipo:</label>
+                    <select class="question_type" name="question_type[]" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="short_answer">Resposta Curta</option>
+                        <option value="long_answer">Resposta Longa</option>
+                        <option value="multiple_choice">Múltiplas Alternativas</option>
+                        <option value="single_choice">Alternativa Única</option>
+                    </select>
+                </div>
+                <div class="additional-inputs"></div>
+                <div class="content-question-button">
+                    <button type="button" class="remove-question">Remover Questão</button>
+                </div>
+            </div>
+        </div>
+        <div class="content-question-button">
+            <button type="button" id="add-question">Adicionar Questão</button>
+        </div>
+        <div id="content-submit-button">
+            <button type="submit" id="submit-form">Adicionar Formulário</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+{% endblock %}
