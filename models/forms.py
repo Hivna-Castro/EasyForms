@@ -1,6 +1,5 @@
 import datetime
-from extensions import db, ma
-from .questions import QuestionsSchema  
+from extensions import db
 
 class Forms(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -13,11 +12,3 @@ class Forms(db.Model):
         self.title = title
         self.description = description
    
-class FormsSchema(ma.SQLAlchemyAutoSchema):
-    questions = ma.Nested('QuestionsSchema', many=True)
-    class Meta:
-        model = Forms
-        fields = ('id', 'title', 'description', 'created_at', 'questions')
-
-form_schema = FormsSchema()
-forms_schema = FormsSchema(many=True)

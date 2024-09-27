@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from settings import url, secret_key
-from extensions import db, ma  
+from extensions import db
 from models import Forms, Questions, Options, Answers
 
 app = Flask(__name__)
@@ -9,7 +9,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = secret_key
 
 db.init_app(app)  
-ma.init_app(app)  
 
 with app.app_context():
     db.create_all()  
@@ -23,7 +22,6 @@ def list_forms():
     except Exception as e:
         return "Ocorreu um erro ao listar os formulários.", 500
 
-# add formulario
 @app.route('/forms/add', methods=['GET', 'POST'])
 def add_form():
     if request.method == 'POST':
@@ -87,33 +85,45 @@ def edit_form(form_id):
         form.title = title
         form.description = description
 
-        question_ids = request.form.getlist('question_id')  
+        question_ids = request.form.getlist('question_id') 
+        question_texts = request.form.getlist('questions[][question_text]')  
+        question_types = request.form.getlist('questions[][question_type]')  
 
-        for question_id in question_ids:
-            question_data = {
-                'question_text': request.form.get(f'questions[{question_id}][question_text]'),
-                'question_type': request.form.get(f'questions[{question_id}][question_type]')
-            }
+        for i, question_text in enumerate(question_texts):
+            question_id = question_ids[i] if i < len(question_ids) else None
+            question_type = question_types[i]
 
-            question = Questions.query.get(question_id)
-            if question:
-                question.question_text = question_data['question_text']
-                question.question_type = question_data['question_type']
+            if question_id: 
+                question = Questions.query.get(question_id)
+                if question:
+                    question.question_text = question_text
+                    question.question_type = question_type
 
-                if question.question_type in ['multiple_choice', 'single_choice']:
-                    Options.query.filter_by(question_id=question.id).delete()
+                    if question_type in ['multiple_choice', 'single_choice']:
+                        option_texts = request.form.getlist(f'questions[{i}][options][]')  
 
-                    option_texts = request.form.getlist(f'questions[{question_id}][options][]')
+                        Options.query.filter_by(question_id=question_id).delete()
+                        for option_text in option_texts:
+                            if option_text:  
+                                new_option = Options(option_text=option_text, question_id=question_id)
+                                db.session.add(new_option)
+
+            else:  
+                new_question = Questions(question_text=question_text, question_type=question_type, form_id=form_id)
+                db.session.add(new_question)
+
+                if question_type in ['multiple_choice', 'single_choice']:
+                    option_texts = request.form.getlist(f'questions[{i}][options][]')
                     for option_text in option_texts:
-                        if option_text: 
-                            new_option = Options(option_text=option_text, question_id=question.id)
+                        if option_text:  
+                            new_option = Options(option_text=option_text, question_id=new_question.id)
                             db.session.add(new_option)
 
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return "Erro ao editar formulario.", 500
+            return f"Erro ao editar formulário: {str(e)}", 500
 
         return redirect(url_for('list_forms'))
 
@@ -126,8 +136,8 @@ def edit_form(form_id):
         }
         for q in form.questions
     ]
-
     return render_template('edit_form.html', form=form, questions=questions)
+
 
 @app.route('/forms/respond/<int:form_id>', methods=['GET'])
 def respond_form(form_id):
@@ -135,14 +145,13 @@ def respond_form(form_id):
         
     return render_template('respond_form.html', form=form)
 
-# del formulario
 @app.route('/forms/delete/<int:form_id>', methods=['POST'])
 def delete_form(form_id):
     if request.form.get('_method') == 'DELETE':
         form = Forms.query.get_or_404(form_id)
         
         if form:
-            answers = Answers.query.filter_by(question_id=form.id).all()  # Obtenha as respostas relacionadas
+            answers = Answers.query.filter_by(question_id=form.id).all() 
             for answer in answers:
                 db.session.delete(answer) 
 

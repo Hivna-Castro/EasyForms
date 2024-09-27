@@ -8,7 +8,7 @@
     <form id="form" method="POST" action="/forms/add">
         <div>
             <label for="title">Título:</label>
-            <input type="text" id="title" name="title" placeholder="Título do Formulário" required>
+            <input type="text" id="title" name="title" placeholder="Título do Formulário" required maxlength="200">
         </div>
         <div>
             <label for="description">Descrição:</label>
@@ -43,7 +43,7 @@
             <button type="button" id="add-question">Adicionar Questão</button>
         </div>
         <div id="content-submit-button">
-            <button type="submit" id="submit-form">Adicionar Formulário</button>
+            <button type="submit" class="submit-form">Adicionar Formulário</button>
         </div>
     </form>
 </div>

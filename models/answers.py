@@ -1,4 +1,4 @@
-from extensions import db, ma
+from extensions import db
 
 answer_options = db.Table('answer_options',
     db.Column('answer_id', db.Integer, db.ForeignKey('answers.id'), primary_key=True),
@@ -16,13 +16,3 @@ class Answers(db.Model):
 
     def __init__(self, question_id):
         self.question_id = question_id
-
-class AnswersSchema(ma.SQLAlchemyAutoSchema):
-    selected_options = ma.Nested('OptionsSchema', many=True)  
-    
-    class Meta:
-        model = Answers
-        fields = ('id', 'question_id', 'short_answer', 'long_answer', 'response_id', 'selected_options')
-
-answer_schema = AnswersSchema()
-answers_schema = AnswersSchema(many=True)

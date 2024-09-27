@@ -1,4 +1,4 @@
-from extensions import db, ma
+from extensions import db
 
 class Options(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -8,11 +8,3 @@ class Options(db.Model):
     def __init__(self, question_id, option_text):
         self.question_id = question_id
         self.option_text = option_text
-
-class OptionsSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Options
-        fields = ('id', 'question_id', 'option_text')
-
-option_schema = OptionsSchema()
-options_schema = OptionsSchema(many=True)

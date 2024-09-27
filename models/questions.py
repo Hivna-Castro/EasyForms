@@ -1,5 +1,4 @@
-from extensions import db, ma
-from .options import OptionsSchema  
+from extensions import db
 
 class Questions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,12 +11,3 @@ class Questions(db.Model):
         self.form_id = form_id
         self.question_text = question_text
         self.question_type = question_type
-
-class QuestionsSchema(ma.SQLAlchemyAutoSchema):
-    options = ma.Nested('OptionsSchema', many=True)
-    class Meta:
-        model = Questions
-        fields = ('id', 'form_id', 'question_text', 'question_type', 'options')
-
-question_schema = QuestionsSchema()
-questions_schema = QuestionsSchema(many=True)
